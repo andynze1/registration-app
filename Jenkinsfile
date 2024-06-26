@@ -10,7 +10,7 @@ pipeline {
     tools {
 
         maven "maven"
-        jdk "openjdk8"
+        jdk "openjdk11"
     }
     environment {
         SCANNER_HOME = tool 'sonar-scanner'
