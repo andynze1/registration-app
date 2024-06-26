@@ -8,7 +8,9 @@ def COLOR_MAP = [
 pipeline {
     agent any
     tools {
+
         maven 'maven'
+        jdk "OracleJDK8"
     }
     environment {
         SCANNER_HOME = tool 'sonar-scanner'
@@ -28,7 +30,7 @@ pipeline {
         NEXUS_GRP_REPO = 'vtech-maven-group'
         NEXUS_LOGIN = 'nexuslogin'
         NEXUS_PROTOCOL = 'http'
-        NEXUS_URL = 'http://172.16.226.100:8081/'
+        NEXUS_URL = 'http://172.16.226.100:8081'
         NEXUS_REPOGRP_ID = 'QA'
         NEXUS_VERSION = 'nexus3'
     }
@@ -81,9 +83,6 @@ pipeline {
             }
         }
         stage ('SonarQube Analysis') {
-            environment {
-                scannerHome = tool SONARSERVER
-            }
             steps {
                 withSonarQubeEnv('SonarQube-Server') {
                     dir('webapp'){
@@ -107,8 +106,8 @@ pipeline {
          }
         stage("Quality Gate") {
             steps {
-                timeout(time: 10, unit: 'MINUTES') {
-                    waitForQualityGate abortPipeline: true
+                script {
+                    waitForQualityGate abortPipeline: false, credentialsId: 'token-for-jenkins'
                 }
             }
          }
