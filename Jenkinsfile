@@ -102,8 +102,8 @@ pipeline {
                     classifier: '',
                     file: 'target/webapp.war',
                     type: 'war']
-                ]
-                }
+                    ]
+                )
             }
         }
     }
@@ -118,7 +118,8 @@ pipeline {
                     message: "*${currentBuild.currentResult}:* Job ${env.JOB_NAME} build ${env.BUILD_NUMBER} \nMore info at: ${env.BUILD_URL}",
                 to: 'andynze4@gmail.com',
                 attachmentsPattern: 'trivyfs.txt,trivyimage.txt'
-            )
+                )
+            }
         }
     }
 }
