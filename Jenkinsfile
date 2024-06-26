@@ -140,6 +140,10 @@ pipeline {
                     channel: '#jenkinscicd',
                     color: color,
                     message: "*${currentBuild.currentResult}:* Job ${env.JOB_NAME} build ${env.BUILD_NUMBER} \nMore info at: ${env.BUILD_URL}",
+                    notifyCommitters: false,  // Notify committers set to false
+                    iconEmoji: '',             // Icon emoji set to empty
+                    username: '',              // Username set to empty
+                    timestamp: ''              // Timestamp set to empty
 //                to: 'andynze4@gmail.com',
 //                attachmentsPattern: 'trivyfs.txt,trivyimage.txt'
                 )
