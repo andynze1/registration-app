@@ -9,8 +9,8 @@ pipeline {
     agent any
     tools {
 
-        maven 'maven'
-        jdk "OracleJDK8"
+        maven "maven"
+        jdk "openjdk8"
     }
     environment {
         SCANNER_HOME = tool 'sonar-scanner'
