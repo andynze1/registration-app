@@ -1,37 +1,17 @@
-def COLOR_MAP = [
-    'SUCCESS': 'good',
-    'FAILURE': 'danger',
-    'UNSTABLE': 'warning',
-    'ABORTED': '#808080'
-    ]
 pipeline {
     agent any
     tools {
         maven 'maven'
-        git 'Default'
     }
     environment {
         SCANNER_HOME = tool 'sonar-scanner'
         APP_NAME = "java-registration-app"
         RELEASE = "1.0.0"
-        SONARSERVER = 'SonarQube-Server'
         DOCKER_USER = "andynze4"
-        DOCKER_PASS = 'DockerHub-Token-18dockerhub'
+        DOCKER_PASS = 'dockerhub'
         IMAGE_NAME = "${DOCKER_USER}" + "/" + "${APP_NAME}"
         IMAGE_TAG = "${RELEASE}-${BUILD_NUMBER}"
-        NEXUS_USER = 'admin'
-        NEXUS_PASS = 'please'
-        RELEASE_REPO = 'vtech-release'
-        CENTRAL_REPO = 'vtech-maven-central'
-        NEXUSIP = '172.16.226.100'
-        NEXUSPORT = '8081'
-        NEXUS_GRP_REPO = 'vtech-maven-group'
-        NEXUS_LOGIN = 'nexuslogin'
-        NEXUS_PROTOCOL = 'http'
-        NEXUS_URL = 'http://172.16.226.100:8081/'
-        NEXUS_REPOGRP_ID = 'QA'
-        NEXUS_VERSION = 'nexus3'
-	
+
     }
     stages {
          stage('clean workspace') {
@@ -44,207 +24,127 @@ pipeline {
                 git branch: 'master', url: 'https://github.com/andynze1/registration-app.git'
             }
          }
-         stage('Build Artifact') {
-            steps {
-                sh 'mvn -s settings.xml -DskipTests clean install'
-            }
-            post {
-                success {
-                    echo 'Now Archiving...'
-                    archiveArtifacts artifacts: '**/target/*.war'
+         stage ('Build Package')  {
+	         steps {
+                dir('webapp'){
+                sh "mvn package"
                 }
-            }
-        }
-        stage('Unit Test') {
-            steps {
-                sh 'mvn -s settings.xml test'
-            }
-        }
-        stage('Code Analysis with Checkstyle') {
-            steps {
-                sh 'mvn -s settings.xml checkstyle:checkstyle'
-            }
-            post {
-                success {
-                    echo 'Generated Analysis Result'
-                }
-            }
-        }
-        //  stage ('Build Package')  {
-	    //      steps {
-        //         dir('webapp'){
-        //         sh "mvn package"
-        //         }
-        //      }
-        //  }
-        stage('Code Analysis with SonarQube') {
-            environment {
-                scannerHome = tool SONARSCANNER
-            }
-            steps {
-                withSonarQubeEnv(SONARSERVER) {
-                    sh '''${scannerHome}/bin/sonar-scanner -Dsonar.projectKey=vtechfile \
-                    -Dsonar.projectName=vtech-repo \
-                    -Dsonar.projectVersion=1.0 \
-                    -Dsonar.sources=src/ \
-                    -Dsonar.java.binaries=target/test-classes/com/visualpathit/account/controllerTest/ \
-                    -Dsonar.junit.reportsPath=target/surefire-reports/ \
-                    -Dsonar.jacoco.reportsPath=target/jacoco.exec \
-                    -Dsonar.java.checkstyle.reportPaths=target/checkstyle-result.xml'''
-                }
-            }
-        }
-        stage ('SonarQube Analysis') {
+             }
+         }
+         stage ('SonarQube Analysis') {
             steps {
               withSonarQubeEnv('SonarQube-Server') {
                 dir('webapp'){
                 sh 'mvn -U clean install sonar:sonar'
                 }
-              }  
+              }
             }
          }
          stage("Quality Gate") {
             steps {
                 script {
-                    waitForQualityGate abortPipeline: true, credentialsId: 'sonartoken'
+                    waitForQualityGate abortPipeline: false, credentialsId: 'SonarQube-Token'
                 }
             }
          }
-
-         
-         stage('Publish to Nexus Repository Manager') {
+         stage ('Artifactory configuration') {
             steps {
-                nexusArtifactUploader(
-                nexusVersion: "${NEXUS_VERSION}",
-                protocol: "${NEXUS_PROTOCOL}",
-                nexusUrl: "${NEXUS_URL}",
-                groupId: "${NEXUS_REPOGRP_ID}",
-                version: "${env.BUILD_ID}-${env.BUILD_TIMESTAMP}",
-                repository: "${RELEASE_REPO}",
-                credentialsId: "${NEXUS_LOGIN}",
-                artifacts: [
-                    [artifactId: 'vtechapp',
-                    classifier: '',
-                    file: 'target/webapp.war',
-                    type: 'war']
-                ]
+                rtServer (
+                    id: "jfrog-server",
+                    url: "http://13.201.137.77:8082/artifactory",
+                    credentialsId: "jfrog"
+                )
+
+                rtMavenDeployer (
+                    id: "MAVEN_DEPLOYER",
+                    serverId: "jfrog-server",
+                    releaseRepo: "libs-release-local",
+                    snapshotRepo: "libs-snapshot-local"
+                )
+
+                rtMavenResolver (
+                    id: "MAVEN_RESOLVER",
+                    serverId: "jfrog-server",
+                    releaseRepo: "libs-release",
+                    snapshotRepo: "libs-snapshot"
                 )
             }
-        }
-        //  stage ('Artifactory configuration') {
-        //     steps {
-        //         rtServer (
-        //             id: "nexuslogin",
-        //             url: "http://172.16.226.100:8081",
-        //             credentialsId: "nexuslogin"
-        //         )
-
-        //         rtMavenDeployer (
-        //             id: "MAVEN_DEPLOYER",
-        //             serverId: "nexuslogin",
-        //             releaseRepo: "vtech-release",
-        //             snapshotRepo: "vtech-snapshot "
-        //         )
-
-        //         rtMavenResolver (
-        //             id: "MAVEN_RESOLVER",
-        //             serverId: "nexuslogin",
-        //             releaseRepo: "vtech-release",
-        //             snapshotRepo: "vtech-snapshot "
-        //         )
-        //     }
-        //  }
-        //  stage ('Deploy Artifacts') {
-        //     steps {
-        //         rtMavenRun (
-        //             tool: "maven", 
-        //             pom: 'webapp/pom.xml',
-        //             goals: 'clean install',
-        //             deployerId: "MAVEN_DEPLOYER",
-        //             resolverId: "MAVEN_RESOLVER"
-        //         )
-        //     }
-        //  }
-        //  stage ('Publish build info') {
-        //     steps {
-        //         rtPublishBuildInfo (
-        //             serverId: "nexuslogin"
-        //      )
-        //     }
-         
+         }
+         stage ('Deploy Artifacts') {
+            steps {
+                rtMavenRun (
+                    tool: "maven",
+                    pom: 'webapp/pom.xml',
+                    goals: 'clean install',
+                    deployerId: "MAVEN_DEPLOYER",
+                    resolverId: "MAVEN_RESOLVER"
+                )
+            }
+         }
+         stage ('Publish build info') {
+            steps {
+                rtPublishBuildInfo (
+                    serverId: "jfrog-server"
+             )
+            }
+         }
          stage('TRIVY FS SCAN') {
             steps {
                 sh "trivy fs . > trivyfs.txt"
             }
          }
-        //  stage("Build & Push Docker Image") {
-        //      steps {
-        //          script {
-        //              docker.withRegistry('',DOCKER_PASS) {
-        //                  docker_image = docker.build "${IMAGE_NAME}"
-        //              }
-        //              docker.withRegistry('',DOCKER_PASS) {
-        //                  docker_image.push("${IMAGE_TAG}")
-        //                  docker_image.push('latest')
-        //              }
-        //          }
-        //      }
-        //  }
-        //  stage("Trivy Image Scan") {
-        //      steps {
-        //          script {
-	    //               sh ('docker run -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy image ashfaque9x/java-registration-app:latest --no-progress --scanners vuln  --exit-code 0 --severity HIGH,CRITICAL --format table > trivyimage.txt')
-        //          }
-        //      }
-        //  }
-        //  stage ('Cleanup Artifacts') {
-        //      steps {
-        //          script {
-        //               sh "docker rmi ${IMAGE_NAME}:${IMAGE_TAG}"
-        //               sh "docker rmi ${IMAGE_NAME}:latest"
-        //          }
-        //      }
-        //  }
-        //  stage('Deploy to Kubernets'){
-        //      steps{
-        //          script{
-        //               dir('Kubernetes') {
-        //                  kubeconfig(credentialsId: 'kubernetes', serverUrl: '') {
-        //                  sh 'kubectl apply -f deployment.yml'
-        //                  sh 'kubectl apply -f service.yml'
-        //                  sh 'kubectl rollout restart deployment.apps/registerapp-deployment'
-        //                  }   
-        //               }
-        //          }
-        //      }
-        //  }
-        
-    }
-    // post {
-    //   always {
-    //     emailext attachLog: true,
-    //         subject: "'${currentBuild.result}'",
-    //         body: "Project: ${env.JOB_NAME}<br/>" +
-    //             "Build Number: ${env.BUILD_NUMBER}<br/>" +
-    //             "URL: ${env.BUILD_URL}<br/>",
-    //         to: 'andynze4@gmail.com',                              
-    //         attachmentsPattern: 'trivyfs.txt,trivyimage.txt'
-    //   }
-    // }
+         stage("Build & Push Docker Image") {
+             steps {
+                 script {
+                     docker.withRegistry('',DOCKER_PASS) {
+                         docker_image = docker.build "${IMAGE_NAME}"
+                     }
+                     docker.withRegistry('',DOCKER_PASS) {
+                         docker_image.push("${IMAGE_TAG}")
+                         docker_image.push('latest')
+                     }
+                 }
+             }
+         }
+         stage("Trivy Image Scan") {
+             steps {
+                 script {
+	                  sh ('docker run -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy image ashfaque9x/java-registration-app:latest --no-progress --scanners vuln  --exit-code 0 --severity HIGH,CRITICAL --format table > trivyimage.txt')
+                 }
+             }
+         }
+         stage ('Cleanup Artifacts') {
+             steps {
+                 script {
+                      sh "docker rmi ${IMAGE_NAME}:${IMAGE_TAG}"
+                      sh "docker rmi ${IMAGE_NAME}:latest"
+                 }
+             }
+         }
+         stage('Deploy to Kubernets'){
+             steps{
+                 script{
+                      dir('Kubernetes') {
+                         kubeconfig(credentialsId: 'kubernetes', serverUrl: '') {
+                         sh 'kubectl apply -f deployment.yml'
+                         sh 'kubectl apply -f service.yml'
+                         sh 'kubectl rollout restart deployment.apps/registerapp-deployment'
+                         }
+                      }
+                 }
+             }
+         }
 
+    }
     post {
-        always {
-            script {
-                def color = COLOR_MAP.get(currentBuild.currentResult, '#808080') // Default to gray if result not in map
-                echo 'Slack Notification.'
-                slackSend (
-                    channel: '#jenkinscicd',
-                    color: color,
-                    message: "*${currentBuild.currentResult}:* Job ${env.JOB_NAME} build ${env.BUILD_NUMBER} \nMore info at: ${env.BUILD_URL}",
-                to: 'andynze4@gmail.com',
-                attachmentsPattern: 'trivyfs.txt,trivyimage.txt'
-                )
-            }
-        }
+      always {
+        emailext attachLog: true,
+            subject: "'${currentBuild.result}'",
+            body: "Project: ${env.JOB_NAME}<br/>" +
+                "Build Number: ${env.BUILD_NUMBER}<br/>" +
+                "URL: ${env.BUILD_URL}<br/>",
+            to: 'ashfaque.s510@gmail.com',
+            attachmentsPattern: 'trivyfs.txt,trivyimage.txt'
+      }
     }
 }
