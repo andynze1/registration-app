@@ -37,11 +37,17 @@ pipeline {
             }
          }
         stage ('Build Artifact')  {
-	        steps {
-                dir('webapp'){
-                sh "mvn -s settings.xml -DskipTests clean install"
+	        // steps {
+            //     dir('webapp'){
+            //     sh "mvn -s settings.xml -DskipTests clean install"
+            //     }
+            //  }
+            steps {
+                configFileProvider([configFile(fileId: '5799eef1-ae06-41a5-bffc-b947fd2f2651', variable: 'MAVEN_SETTINGS')]) {
+                    withEnv(["NEXUSIP=${NEXUSIP}", "NEXUSPORT=${NEXUSPORT}", "NEXUS_GRP_REPO=${NEXUS_GRP_REPO}", "NEXUS_USER=${NEXUS_USER}", "NEXUS_PASS=${NEXUS_PASS}"]) {
+                        sh 'mvn -s $MAVEN_SETTINGS test'
+                    }
                 }
-             }
             post {
                 success {
                     echo 'Now Archiving...'
