@@ -53,7 +53,7 @@ pipeline {
                 success {
                     echo 'Now Archiving...'
 //                    archiveArtifacts artifacts: '**/target/*.war'
-                    archiveArtifacts artifacts: '**/*.war'
+                    archiveArtifacts artifacts: '/var/lib/jenkins/workspace/vTech-CICD/target/webapp.war'
                 }
             }
          }
