@@ -103,7 +103,7 @@ pipeline {
                     classifier: '',
                     file: 'target/webapp.war',
                     type: 'war']
-
+                ]
                     id: "nexuslogin",
                     url: "http://172.16.226.100:8081/artifactory",
                     credentialsId: "nexuslogin"
