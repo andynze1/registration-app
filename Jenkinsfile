@@ -8,14 +8,10 @@ pipeline {
         APP_NAME = "java-registration-app"
         RELEASE = "1.0.0"
         DOCKER_USER = "andynze4"
-        DOCKER_PASS = 'dockerhub'
+        DOCKER_PASS = 'DockerHub-Token-18dockerhub'
         IMAGE_NAME = "${DOCKER_USER}" + "/" + "${APP_NAME}"
         IMAGE_TAG = "${RELEASE}-${BUILD_NUMBER}"
         SONARSERVER = 'SonarQube-Server'
-        DOCKER_USER = "andynze4"
-        DOCKER_PASS = 'DockerHub-Token-18dockerhub'
-        IMAGE_NAME = "${DOCKER_USER}" + "/" + "${APP_NAME}"
-
         NEXUS_USER = 'admin'
         NEXUS_PASS = 'please'
         RELEASE_REPO = 'vtech-release'
