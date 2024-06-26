@@ -80,11 +80,10 @@ pipeline {
               }
             }
          }
-         
         stage("Quality Gate") {
             steps {
-                script {
-                    waitForQualityGate abortPipeline: true, credentialsId: 'sonartoken'
+                timeout(time: 10, unit: 'MINUTES') {
+                    waitForQualityGate abortPipeline: true
                 }
             }
          }
@@ -104,91 +103,9 @@ pipeline {
                     file: 'target/webapp.war',
                     type: 'war']
                 ]
-                    id: "nexuslogin",
-                    url: "http://172.16.226.100:8081/artifactory",
-                    credentialsId: "nexuslogin"
-                )
-
-                rtMavenDeployer (
-                    id: "MAVEN_DEPLOYER",
-                    serverId: "nexuslogin",
-                    releaseRepo: "vtech-release",
-                    snapshotRepo: "vtech-snapshot"
-                )
-
-                rtMavenResolver (
-                    id: "MAVEN_RESOLVER",
-                    serverId: "nexuslogin",
-                    releaseRepo: "vtech-release",
-                    snapshotRepo: "vtech-snapshot"
-                )
+                }
             }
-         }
-        stage ('Deploy Artifacts') {
-            steps {
-                rtMavenRun (
-                    tool: "maven",
-                    pom: 'webapp/pom.xml',
-                    goals: 'clean install',
-                    deployerId: "MAVEN_DEPLOYER",
-                    resolverId: "MAVEN_RESOLVER"
-                )
-            }
-         }
-        stage ('Publish build info') {
-            steps {
-                rtPublishBuildInfo (
-                    serverId: "nexuslogin"
-             )
-            }
-         }
-        stage('TRIVY FS SCAN') {
-            steps {
-                sh "trivy fs . > trivyfs.txt"
-            }
-         }
-        stage("Build & Push Docker Image") {
-             steps {
-                 script {
-                     docker.withRegistry('',DOCKER_PASS) {
-                         docker_image = docker.build "${IMAGE_NAME}"
-                     }
-                     docker.withRegistry('',DOCKER_PASS) {
-                         docker_image.push("${IMAGE_TAG}")
-                         docker_image.push('latest')
-                     }
-                 }
-             }
-         }
-        stage("Trivy Image Scan") {
-             steps {
-                 script {
-	                  sh ('docker run -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy image ashfaque9x/java-registration-app:latest --no-progress --scanners vuln  --exit-code 0 --severity HIGH,CRITICAL --format table > trivyimage.txt')
-                 }
-             }
-         }
-        stage ('Cleanup Artifacts') {
-             steps {
-                 script {
-                      sh "docker rmi ${IMAGE_NAME}:${IMAGE_TAG}"
-                      sh "docker rmi ${IMAGE_NAME}:latest"
-                 }
-             }
-         }
-        stage('Deploy to Kubernets'){
-             steps{
-                 script{
-                      dir('Kubernetes') {
-                         kubeconfig(credentialsId: 'kubernetes', serverUrl: '') {
-                         sh 'kubectl apply -f deployment.yml'
-                         sh 'kubectl apply -f service.yml'
-                         sh 'kubectl rollout restart deployment.apps/registerapp-deployment'
-                         }
-                      }
-                 }
-             }
-         }
-
+        }
     }
     post {
         always {
@@ -201,8 +118,7 @@ pipeline {
                     message: "*${currentBuild.currentResult}:* Job ${env.JOB_NAME} build ${env.BUILD_NUMBER} \nMore info at: ${env.BUILD_URL}",
                 to: 'andynze4@gmail.com',
                 attachmentsPattern: 'trivyfs.txt,trivyimage.txt'
-                )
-            }
+            )
         }
     }
 }
