@@ -48,6 +48,7 @@ pipeline {
                         sh 'mvn -s $MAVEN_SETTINGS test'
                     }
                 }
+            }
             post {
                 success {
                     echo 'Now Archiving...'
