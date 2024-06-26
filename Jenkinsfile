@@ -43,7 +43,7 @@ pipeline {
         stage ('Build Artifact')  {
 	        steps {
                 dir('webapp'){
-                sh "mvn -s settings.xml -DskipTests clean install" #mvn package
+                sh "mvn -s settings.xml -DskipTests clean install"
                 }
              }
             post {
