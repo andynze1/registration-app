@@ -75,10 +75,10 @@ pipeline {
         }
         stage ('SonarQube Analysis') {
             environment {
-                scannerHome = tool SONARSCANNER
+                scannerHome = tool SONARSERVER
             }
             steps {
-              withSonarQubeEnv(SONARSCANNER) {
+              withSonarQubeEnv(SONARSERVER) {
                 dir('webapp'){
                 sh '''${scannerHome}/bin/sonar-scanner -Dsonar.projectKey=vtech \
                     -Dsonar.projectName=vtech-repo \
