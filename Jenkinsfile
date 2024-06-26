@@ -21,8 +21,6 @@ pipeline {
         IMAGE_NAME = "${DOCKER_USER}" + "/" + "${APP_NAME}"
         IMAGE_TAG = "${RELEASE}-${BUILD_NUMBER}"
         SONARSERVER = 'SonarQube-Server'
-        // NEXUS_USER = 'admin'
-        // NEXUS_PASS = 'please'
         RELEASE_REPO = 'vtech-release'
         CENTRAL_REPO = 'vtech-maven-central'
         NEXUSIP = '172.16.226.100'
