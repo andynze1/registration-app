@@ -41,7 +41,7 @@ pipeline {
          }
          stage('Checkout from Git') {
             steps {
-                git branch: 'main', url: 'https://andynze4@bitbucket.org/nzetechbox/registration-app.git'
+                git branch: 'master', url: 'https://github.com/andynze1/registration-app.git'
             }
          }
          stage('Build Artifact') {
