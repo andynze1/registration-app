@@ -107,7 +107,7 @@ pipeline {
         stage("Quality Gate") {
             steps {
                 script {
-                    waitForQualityGate abortPipeline: false, credentialsId: 'token-for-jenkins'
+                    waitForQualityGate abortPipeline: true, credentialsId: 'token-for-jenkins'
                 }
             }
          }
