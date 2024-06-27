@@ -63,7 +63,7 @@ pipeline {
             }
         }
 
-        stage('Unit Test and Code Coverage') {
+        stage('Unit Test') {
             steps {
                 dir('webapp') {
                     // Execute tests and generate jacoco.exec file
@@ -89,14 +89,15 @@ pipeline {
             steps {
                 withSonarQubeEnv(SONAR_SERVER) {
                     dir('webapp') {
-                        sh "${SCANNER_HOME}/bin/sonar-scanner -Dsonar.projectKey=vtech \
+                        sh """${SCANNER_HOME}/bin/sonar-scanner 
+                            -Dsonar.projectKey=vtech \
                             -Dsonar.projectName=vtech-app \
                             -Dsonar.projectVersion=1.0.0 \
                             -Dsonar.sources=src/ \
                             -Dsonar.java.binaries=target/classes,target/test-classes \
                             -Dsonar.junit.reportsPath=target/surefire-reports/ \
                             -Dsonar.jacoco.reportsPath=target/jacoco.exec \
-                            -Dsonar.java.checkstyle.reportPaths=target/checkstyle-result.xml"
+                            -Dsonar.java.checkstyle.reportPaths=target/checkstyle-result.xml"""
                     }
                 }
             }
