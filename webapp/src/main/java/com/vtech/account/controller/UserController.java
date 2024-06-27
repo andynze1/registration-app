@@ -1,11 +1,10 @@
-package com.visualpathit.account.controller;
+package com.vtech.account.controller;
 
-import com.visualpathit.account.model.User;
-import com.visualpathit.account.service.ProducerService;
-import com.visualpathit.account.service.SecurityService;
-import com.visualpathit.account.service.UserService;
-import com.visualpathit.account.utils.MemcachedUtils;
-import com.visualpathit.account.validator.UserValidator;
+import com.vtech.account.model.User;
+import com.vtech.account.service.ProducerService;
+import com.vtech.account.service.SecurityService;
+import com.vtech.account.service.UserService;
+import com.vtech.account.validator.UserValidator;
 
 import java.util.List;
 import java.util.UUID;

@@ -1,4 +1,4 @@
-package com.visualpathit.account.beans;
+package com.vtech.account.beans;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
