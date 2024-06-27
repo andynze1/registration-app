@@ -82,24 +82,24 @@ pipeline {
         }
         stage ('SonarQube Analysis') {
             steps {
-                withSonarQubeEnv('SonarQube-Server') {
-                    dir('webapp'){
-                    sh 'mvn -U clean install sonar:sonar'
+            //     withSonarQubeEnv('SonarQube-Server') {
+            //         dir('webapp'){
+            //         sh 'mvn -U clean install sonar:sonar'
+            //     }
+            //   }
+              withSonarQubeEnv(SONARSERVER) {
+                dir('webapp'){
+                sh '''${scannerHome}/bin/sonar-scanner -Dsonar.projectKey=vtech \
+                    -Dsonar.projectName=vtech-repo \
+                    -Dsonar.projectVersion=1.0 \
+                    -Dsonar.sources=src/ \
+                    -Dsonar.java.binaries=target/test-classes/com/visualpathit/account/controllerTest/ \
+                    -Dsonar.junit.reportsPath=target/surefire-reports/ \
+                    -Dsonar.jacoco.reportsPath=target/jacoco.exec \
+                    -Dsonar.java.checkstyle.reportPaths=target/checkstyle-result.xml'''
+//                sh 'mvn -U clean install sonar:sonar'
                 }
               }
-//               withSonarQubeEnv(SONARSERVER) {
-//                 dir('webapp'){
-//                 sh '''${scannerHome}/bin/sonar-scanner -Dsonar.projectKey=vtech \
-//                     -Dsonar.projectName=vtech-repo \
-//                     -Dsonar.projectVersion=1.0 \
-//                     -Dsonar.sources=src/ \
-//                     -Dsonar.java.binaries=target/test-classes/com/visualpathit/account/controllerTest/ \
-//                     -Dsonar.junit.reportsPath=target/surefire-reports/ \
-//                     -Dsonar.jacoco.reportsPath=target/jacoco.exec \
-//                     -Dsonar.java.checkstyle.reportPaths=target/checkstyle-result.xml'''
-// //                sh 'mvn -U clean install sonar:sonar'
-//                 }
-//               }
             }
          }
         stage("Quality Gate") {
