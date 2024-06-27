@@ -90,8 +90,8 @@ pipeline {
               withSonarQubeEnv(SONAR_SERVER) {
                 dir('webapp'){
                 sh '''${SCANNER_HOME}/bin/sonar-scanner -Dsonar.projectKey=vtech \
-                    -Dsonar.projectName=vtech-repo \
-                    -Dsonar.projectVersion=1.0 \
+                    -Dsonar.projectName=vtech-app \
+                    -Dsonar.projectVersion=1.0.0 \
                     -Dsonar.sources=src/ \
                     -Dsonar.java.binaries=target/test-classes/com/visualpathit/account/controllerTest/ \
                     -Dsonar.junit.reportsPath=target/surefire-reports/ \
