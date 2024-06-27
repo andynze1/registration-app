@@ -180,8 +180,6 @@ pipeline {
                     timestamp: ''
                 )
             }
-        }
-        always {
             emailext attachLog: true,
                 subject: "'${currentBuild.result}'",
                 body: "Project: ${env.JOB_NAME}<br/>" +
