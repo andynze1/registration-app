@@ -122,7 +122,7 @@ pipeline {
                     repository: "${RELEASE_REPO}",
                     credentialsId: "${NEXUS_LOGIN}",
                     artifacts: [
-                        [artifactId: 'vtechapp',
+                        [artifactId: 'webapp',
                         classifier: '',
                         file: 'target/webapp.war',
                         type: 'war']
