@@ -1,4 +1,4 @@
-package com.visualpathit.account.controllerTest;
+package com.vtech.account.controllerTest;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -14,10 +14,10 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
-import com.visualpathit.account.controller.UserController;
-import com.visualpathit.account.model.User;
-import com.visualpathit.account.service.UserService;
-import com.visualpathit.account.setup.StandaloneMvcTestViewResolver;
+import com.vtech.account.controller.UserController;
+import com.vtech.account.model.User;
+import com.vtech.account.service.UserService;
+import com.vtech.account.setup.StandaloneMvcTestViewResolver;
 
 
 public class UserControllerTest {

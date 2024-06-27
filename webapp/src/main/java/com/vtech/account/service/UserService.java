@@ -1,8 +1,8 @@
-package com.visualpathit.account.service;
+package com.vtech.account.service;
 
 import java.util.List;
 
-import com.visualpathit.account.model.User;
+import com.vtech.account.model.User;
 
 /** {@author imrant}!*/
 public interface UserService {

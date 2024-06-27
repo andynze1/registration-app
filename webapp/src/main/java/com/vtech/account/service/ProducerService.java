@@ -1,4 +1,4 @@
-package com.visualpathit.account.service;
+package com.vtech.account.service;
 
 public interface ProducerService {
 
