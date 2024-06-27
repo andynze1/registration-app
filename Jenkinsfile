@@ -89,7 +89,7 @@ pipeline {
             steps {
                 withSonarQubeEnv(SONAR_SERVER) {
                     dir('webapp') {
-                        sh """${SCANNER_HOME}/bin/sonar-scanner 
+                        sh """${SCANNER_HOME}/bin/sonar-scanner \
                             -Dsonar.projectKey=vtech \
                             -Dsonar.projectName=vtech-app \
                             -Dsonar.projectVersion=1.0.0 \
