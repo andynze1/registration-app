@@ -18,6 +18,8 @@ pipeline {
         RELEASE = "1.0.0"
         DOCKER_USER = "andynze4"
         DOCKER_PASS = 'DockerHub-Token-18dockerhub'
+        NEXUS_USER = 'admin'
+        NEXUS_PASS = 'please'
         IMAGE_NAME = "${DOCKER_USER}" + "/" + "${APP_NAME}"
         IMAGE_TAG = "${RELEASE}-${BUILD_NUMBER}"
         SONAR_SERVER = 'SonarQube-Server'
