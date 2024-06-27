@@ -20,7 +20,7 @@ pipeline {
         DOCKER_PASS = 'DockerHub-Token-18dockerhub'
         IMAGE_NAME = "${DOCKER_USER}" + "/" + "${APP_NAME}"
         IMAGE_TAG = "${RELEASE}-${BUILD_NUMBER}"
-        SONARSERVER = 'SonarQube-Server'
+        SONAR_SERVER = 'SonarQube-Server'
         RELEASE_REPO = 'vtech-release'
         CENTRAL_REPO = 'vtech-maven-central'
         NEXUSIP = '172.16.226.100'
@@ -87,9 +87,9 @@ pipeline {
             //         sh 'mvn -U clean install sonar:sonar'
             //     }
             //   }
-              withSonarQubeEnv(SONARSERVER) {
+              withSonarQubeEnv(SONAR_SERVER) {
                 dir('webapp'){
-                sh '''${scannerHome}/bin/sonar-scanner -Dsonar.projectKey=vtech \
+                sh '''${SCANNER_HOME}/bin/sonar-scanner -Dsonar.projectKey=vtech \
                     -Dsonar.projectName=vtech-repo \
                     -Dsonar.projectVersion=1.0 \
                     -Dsonar.sources=src/ \
